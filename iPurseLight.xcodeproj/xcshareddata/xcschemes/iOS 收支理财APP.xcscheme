@@ -18,7 +18,7 @@
                BlueprintIdentifier = "68C57E1A2EFF818900786190"
                BuildableName = "iPurseLight.app"
                BlueprintName = "iPurseLight"
-               ReferencedContainer = "container:com.lightchan.money20251227.xcodeproj">
+               ReferencedContainer = "container:iPurseLight.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "68C57E1A2EFF818900786190"
             BuildableName = "iPurseLight.app"
             BlueprintName = "iPurseLight"
-            ReferencedContainer = "container:com.lightchan.money20251227.xcodeproj">
+            ReferencedContainer = "container:iPurseLight.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -64,7 +64,7 @@
             BlueprintIdentifier = "68C57E1A2EFF818900786190"
             BuildableName = "iPurseLight.app"
             BlueprintName = "iPurseLight"
-            ReferencedContainer = "container:com.lightchan.money20251227.xcodeproj">
+            ReferencedContainer = "container:iPurseLight.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
