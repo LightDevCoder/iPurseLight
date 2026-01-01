@@ -187,10 +187,35 @@ struct BillView: View {
         defer { url.stopAccessingSecurityScopedResource() }
         let filename = url.lastPathComponent
         var overrideYear: Int?; var overrideMonth: Int?
-        let pattern = "PersonalBill-(\\d{4})\\.(\\d{1,2})"
-        if let regex = try? NSRegularExpression(pattern: pattern), let match = regex.firstMatch(in: filename, range: NSRange(filename.startIndex..., in: filename)) {
-            if let yr = Range(match.range(at: 1), in: filename), let mr = Range(match.range(at: 2), in: filename) {
-                overrideYear = Int(filename[yr]); overrideMonth = Int(filename[mr])
+        // 修改前
+        // let pattern = "PersonalBill-(\\d{4})\\.(\\d{1,2})"
+        // 逻辑：Group 1 是年份 (String -> Int), Group 2 是月份 (String -> Int)
+
+        // 修改后
+        let pattern = "PersonalBill-([A-Za-z]+)\\.(\\d{4})"
+        // 逻辑：Group 1 是月份名称 (String, 如 "Jan"), Group 2 是年份 (String, 如 "2026")
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: filename, range: NSRange(filename.startIndex..., in: filename)) {
+            
+            // 注意：match.range(at: 1) 现在对应月份String，at: 2 对应年份String
+            if let monthRange = Range(match.range(at: 1), in: filename),
+               let yearRange = Range(match.range(at: 2), in: filename) {
+                
+                let monthStr = String(filename[monthRange])
+                let yearStr = String(filename[yearRange])
+                
+                // 解析年份
+                overrideYear = Int(yearStr)
+                
+                // 解析月份 (Jan -> 1)
+                // 使用 en_US_POSIX 确保即使手机是中文环境，也能正确解析英文月份缩写
+                let formatter = DateFormatter()
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                formatter.dateFormat = "MMM" // 匹配 "Jan", "Feb", "Mar" 等
+                
+                if let date = formatter.date(from: monthStr) {
+                    overrideMonth = Calendar.current.component(.month, from: date)
+                }
             }
         }
         if let data = try? String(contentsOf: url, encoding: .utf8) {
