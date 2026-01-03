@@ -175,6 +175,20 @@ class LocalizationManager: ObservableObject {
         "资金账户": "Fund Account",
         "投资理财": "Investment",
         "固定资产": "Fixed Assets",
-        "负债/借出": "Debt/Loan"
+        "负债/借出": "Debt/Loan",
+        
+        // --- Data Backup & Settings ---
+        "Data Backup": "数据备份",
+        "Export All Data": "导出数据 (JSON)",
+        "Restore from File": "从文件恢复",
+        "Backup": "备份",
+        "Restore": "恢复",
+        "Export as .json file to save locally or send to another device.": "生成 JSON 文件以保存到本地或发送到其他设备。",
+        "Current data will be merged with the backup file.": "导入的数据将与当前现有数据合并。",
+        "Restore Successful!": "恢复成功！",
+        "Restore failed": "恢复失败",
+        "Export failed": "导出失败",
+        "Cloud Sync": "云同步",
+        "Coming Soon": "即将推出"
     ]
 }

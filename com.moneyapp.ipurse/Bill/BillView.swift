@@ -124,6 +124,16 @@ struct BillView: View {
                         Menu {
                             Button(action: { showAddTransaction = true }) { Label(lm.t("记一笔"), systemImage: "square.and.pencil") }
                             Button(action: { showFileImporter = true }) { Label(lm.t("导入表格"), systemImage: "square.and.arrow.down") }
+                            
+                            Divider() // 分割线
+                                
+                                // ✨ 新增：数据备份入口
+                            NavigationLink {
+                                DataBackupView()
+                            } label: {
+                                Label(lm.t("Data Backup"), systemImage: "externaldrive")
+                            }
+                            
                         } label: { Image(systemName: "plus.circle.fill").font(.title2) }
                     }
                 }
