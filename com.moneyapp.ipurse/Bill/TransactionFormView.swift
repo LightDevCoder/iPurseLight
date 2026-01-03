@@ -30,7 +30,7 @@ struct TransactionFormView: View {
                 if itemToEdit == nil {
                     Section {
                         HStack {
-                            TextField(lm.t("例如：刚才打车花了30元"), text: $aiInput)
+                            TextField(lm.t("例如：刚才用支付宝打车花了30元"), text: $aiInput)
                             Button(action: analyzeText) {
                                 if isAnalyzing {
                                     ProgressView()

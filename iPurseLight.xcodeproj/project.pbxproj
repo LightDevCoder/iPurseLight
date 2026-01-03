@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		68D540BA2F08A3C900F2BBFD /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 68D540B92F08A3C900F2BBFD /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		68C57E1B2EFF818900786190 /* iPurseLight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPurseLight.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		68D540B92F08A3C900F2BBFD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -33,6 +38,7 @@
 			isa = PBXGroup;
 			children = (
 				68C57E1D2EFF818900786190 /* com.moneyapp.ipurse */,
+				68D540B92F08A3C900F2BBFD /* README.md */,
 				68C57E1C2EFF818900786190 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				68D540BA2F08A3C900F2BBFD /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

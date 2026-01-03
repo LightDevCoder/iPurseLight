@@ -2,18 +2,24 @@
 
 ![iOS](https://img.shields.io/badge/iOS-17.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5.9-orange) ![SwiftUI](https://img.shields.io/badge/SwiftUI-LifeCycle-success) ![SwiftData](https://img.shields.io/badge/Database-SwiftData-green)
 
-**iPurseLight** 是一款基于 SwiftUI 和 SwiftData 构建的极简个人理财 App。它摒弃了繁琐的记账流程，利用 AI 技术实现自然语言记账，并提供专业的资产复利计算与多维度财务分析。
+**iPurseLight** 是一款基于 SwiftUI 和 SwiftData 构建的极简个人理财 App。它摒弃了繁琐的记账流程，利用 AI 技术实现自然语言记账，提供专业的资产复利计算，并支持本地数据的完整备份与迁移。
 
-> **Update Log (2025-12-27):** > * Integrated DeepSeek & Gemini 2.5 Flash.
-> * Full Dark Mode support.
-> * English/Chinese dual language support with advanced date formatting.
+> **Update Log (2026-01-02):**
+> * ✨ **New Feature:** Added Local Data Backup & Restore (JSON format).
+> * 📥 **Improvement:** Enhanced CSV import to support 'Month.Year' (e.g., Jan.2026) filenames.
+> * 🐛 **Fix:** Optimized AI model connectivity (Gemini 2.5) & DeepSeek integration.
 
 ## ✨ 核心功能 (Features)
 
 * **🤖 AI 智能记账 (AI-Powered Tracking)**
     * 接入 **DeepSeek** (推荐)、**Gemini 2.5**、**OpenAI GPT-5.2**。
-    * 支持自然语言输入：*"刚才打车花了30元"* -> 自动识别金额、分类、渠道。
-    
+    * 支持自然语言输入：*"刚才支付宝打车花了30元"* -> 自动识别金额、分类、渠道。
+
+* **💾 数据安全与备份 (Data Backup & Restore)**
+    * **本地优先**：数据完全存储于设备本地 (SwiftData)，保护隐私。
+    * **JSON 导出/恢复**：支持一键导出所有资产与账单数据为 JSON 文件，轻松迁移至新设备。
+    * **未来扩展**：底层架构已为 iCloud/WebDAV 同步做好准备。
+
 * **📈 资产驾驶舱 (Asset Dashboard)**
     * **自动复利计算**：基于本金与年化率 (APY)，实时秒级计算收益。
     * **收益分离**：区分“已产出收益” (历史落袋) 与“动态利息” (当前产生)。
@@ -61,23 +67,46 @@
 ## 📂 项目结构 (Project Structure)
 
 ```text
-iPurseLight/
-├── App/
-│   ├── LocalizationManager.swift  // 核心：双语字典与日期格式化逻辑
-│   └── ...
-├── Models/
-│   └── Models.swift               // SwiftData 模型 (含复利计算逻辑)
-├── Services/
-│   └── AIService.swift            // AI 接口封装 (DeepSeek/Gemini/OpenAI)
-├── Views/
-│   ├── Debug/
-│   │   └── DebugView.swift        // 网络诊断工具
-│   ├── Asset/                     // 资产管理模块
-│   ├── Bill/                      // 账单流水模块
-│   └── ...
-🤝 贡献 (Contribution)
+/iPurseLight
+ ├─ App/                          # 应用入口与全局注入层
+ │   ├─ iPurseLightApp.swift      # 应用入口：注入 ModelContainer / LocalizationManager
+ │   ├─ LocalizationManager.swift # 本地化核心：双语字典、日期格式化（Month / Year）
+ │   └─ Assets.xcassets           # 全局资源（颜色、图标、主题）
+ │
+ ├─ Models/                       # 数据模型层（SwiftData）
+ │   ├─ Models.swift              # AssetItem / BillItem
+ │   │                            #含复利计算、核心财务逻辑 
+ │   └─ BackupModels.swift        # 备份数据模型：定义 DTO 结构 (JSON 中转层)
+ │
+ ├─ Services/                     # 外部服务 / AI 能力层
+ │   ├─ AIService.swift           # AI 服务核心
+ │   │                            # 集成 DeepSeek（默认）
+ │   │                            # Gemini 2.5 / GPT-5.2 
+ │   └─ BackupService.swift       # 备份服务：负责 JSON 序列化与文件 I/O
+ │
+ ├─ Views/                        # UI / 业务视图层
+ │   ├─ ContentView.swift         # TabView主框架（全局导航）             
+ │   └─ DataBackupView.swift      # 备份管理页：数据导出与文件恢复 UI
+ │
+ │   ├─ Debug/                    # 调试与诊断视图
+ │   │   └─ DebugView.swift       # 网络诊断实验室（API 连通性测试）
+ │
+ │   ├─ Asset/                    # 资产模块
+ │   │   ├─ AssetView.swift       # 资产主页（支持左右滑动 Portfolios）
+ │   │                            # 资产录入表单（含“已产出收益”字段）
+ │
+ │   ├─ Bill/                     # 账单与分析模块
+ │   │   ├─ BillView.swift        # 账单流水（支持 CSV 导入）
+ │   │   ├─ AnalysisView.swift    # 财务分析 / AI 建议
+ │   │   │                        # Chart 适配深色模式
+ │   │   └─ TransactionFormView.swift
+ │
+ │   └─ Settings/                 # 设置模块
+ │       └─ SettingsView.swift    # API Key 管理
+ │                                # 语言切换
+ │                                # 诊断入口
+ 🤝 贡献 (Contribution)
 欢迎提交 PR！ 特别感谢 DeepSeek 提供的高性价比 AI 服务，以及 Google Gemini 的免费额度支持。
 
 📄 License
 MIT License
-
