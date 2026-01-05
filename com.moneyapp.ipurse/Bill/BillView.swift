@@ -2,10 +2,15 @@ import SwiftUI
 import SwiftData
 import Charts
 import UniformTypeIdentifiers
+import Combine // 👈 必须引入这个，ObservableObject 在这里定义
 
 struct BillView: View {
     @Environment(\.modelContext) var context
     @EnvironmentObject var lm: LocalizationManager
+    
+    // ✨ 新增：获取 QuickActionManager
+    @EnvironmentObject var quickActionManager: QuickActionManager
+    
     @Query(sort: \BillItem.date, order: .reverse) var transactions: [BillItem]
     
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
@@ -18,6 +23,9 @@ struct BillView: View {
     @State private var editMode: EditMode = .inactive
     @State private var selection = Set<UUID>()
     @State private var editingItem: BillItem?
+    
+    // ✨ 新增：用于传递给 Form 的初始文本
+    @State private var initialVoiceText: String = ""
     
     var availableYears: [Int] {
         let years = Set(transactions.map { $0.year })
@@ -38,16 +46,13 @@ struct BillView: View {
                 VStack(spacing: 10) {
                     HStack {
                         Button(action: { showYearAnalysis = true }) {
-                            // ✨ 修复：使用翻译字典里的 "Annual Report"
                             Label(lm.t("年度汇总"), systemImage: "chart.bar.xaxis")
                                 .font(.caption).padding(6).background(Color.orange.opacity(0.1)).foregroundColor(.orange).cornerRadius(8)
                         }
                         Spacer()
-                        // 这里的 "年份" (Year) 标签保留，作为 Picker 的标题没问题
                         Text(lm.t("年份"))
                         Picker(lm.t("年份"), selection: $selectedYear) {
                             ForEach(availableYears, id: \.self) { year in
-                                // ✨ 修复：使用 formatYear，英文下显示 "2025"，不再显示 "2025 Year"
                                 Text(lm.formatYear(year)).tag(year)
                             }
                         }.pickerStyle(.menu)
@@ -57,7 +62,6 @@ struct BillView: View {
                         HStack(spacing: 15) {
                             ForEach(1...12, id: \.self) { month in
                                 Button(action: { selectedMonth = month }) {
-                                    // ✨ 修复：使用 formatMonth，英文下显示 "Jan.", "Feb." 等
                                     Text(lm.formatMonth(month))
                                         .font(.subheadline)
                                         .padding(.vertical, 6)
@@ -73,7 +77,6 @@ struct BillView: View {
                 
                 List(selection: $selection) {
                     if monthlyTransactions.isEmpty {
-                        // ✨ 修复：空白页提示也优化一下格式
                         ContentUnavailableView(
                             "\(lm.formatYear(selectedYear)) \(lm.formatMonth(selectedMonth)) - \(lm.t("无数据"))",
                             systemImage: "calendar"
@@ -124,28 +127,24 @@ struct BillView: View {
                         Menu {
                             Button(action: { showAddTransaction = true }) { Label(lm.t("记一笔"), systemImage: "square.and.pencil") }
                             Button(action: { showFileImporter = true }) { Label(lm.t("导入表格"), systemImage: "square.and.arrow.down") }
-                            
-                            Divider() // 分割线
-                                
-                                // ✨ 新增：数据备份入口
+                            Divider()
                             NavigationLink {
                                 DataBackupView()
                             } label: {
                                 Label(lm.t("Data Backup"), systemImage: "externaldrive")
                             }
-                            
                         } label: { Image(systemName: "plus.circle.fill").font(.title2) }
                     }
                 }
             }
-            // ✨✨✨ 修复：使用 formatMonthlyReportTitle 生成 "2025 Nov. Report" ✨✨✨
+            // --- Sheet 与 Modifiers 开始 ---
+            
             .sheet(isPresented: $showAnalysis) {
                 AnalysisView(
                     transactions: monthlyTransactions,
                     title: lm.formatMonthlyReportTitle(year: selectedYear, month: selectedMonth)
                 )
             }
-            // ✨✨✨ 修复：使用 formatYearlyReportTitle 生成 "2025 Annual Report" ✨✨✨
             .sheet(isPresented: $showYearAnalysis) {
                 AnalysisView(
                     transactions: yearlyTransactions,
@@ -155,18 +154,49 @@ struct BillView: View {
             .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [UTType.commaSeparatedText]) { res in
                 if let url = try? res.get() { importCSV(from: url) }
             }
+            // ✨ 修改：记一笔 Sheet (带初始文本)
             .sheet(isPresented: $showAddTransaction) {
-                TransactionFormView(itemToEdit: nil) { newItem in context.insert(newItem); refreshSelection(date: newItem.date) }
+                TransactionFormView(itemToEdit: nil, initialText: initialVoiceText) { newItem in
+                    context.insert(newItem)
+                    refreshSelection(date: newItem.date)
+                    initialVoiceText = "" // 清理
+                }
             }
             .sheet(item: $editingItem) { item in
                 TransactionFormView(itemToEdit: item) { _ in refreshSelection(date: item.date) }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            // ✨✨✨【新增核心修复】✨✨✨
+            // 处理“冷启动”：App 刚打开时，如果状态已经是 true，onChange 无法监听到，必须这里手动查一次
+            .task {
+                // 给一点点延迟，确保视图层级完全准备好
+                try? await Task.sleep(for: .seconds(0.5))
+                
+                if quickActionManager.shouldShowAddTransaction {
+                    if let text = quickActionManager.consumePendingText() {
+                        self.initialVoiceText = text
+                    }
+                    self.showAddTransaction = true
+                    // 重置状态
+                    quickActionManager.shouldShowAddTransaction = false
+                }
+            }
+            // ✨ 新增：监听快捷指令触发
+            .onChange(of: quickActionManager.shouldShowAddTransaction) { _, newValue in
+                if newValue {
+                    if let text = quickActionManager.consumePendingText() {
+                        self.initialVoiceText = text
+                    }
+                    self.showAddTransaction = true
+                    quickActionManager.shouldShowAddTransaction = false
+                }
+            }
+            // --- Modifiers 结束 ---
         }
     }
     
-    // MARK: Helpers
-    // ... (Helpers 函数保持不变，为了节省篇幅已省略，请保留原来的代码) ...
+    // MARK: - Helpers
+    
     func refreshSelection(date: Date) {
         let y = Calendar.current.component(.year, from: date)
         let m = Calendar.current.component(.month, from: date)
@@ -191,37 +221,27 @@ struct BillView: View {
         return .red
     }
     
-    // CSV Logic 保持不变...
     func importCSV(from url: URL) {
         guard url.startAccessingSecurityScopedResource() else { return }
         defer { url.stopAccessingSecurityScopedResource() }
         let filename = url.lastPathComponent
         var overrideYear: Int?; var overrideMonth: Int?
-        // 修改前
-        // let pattern = "PersonalBill-(\\d{4})\\.(\\d{1,2})"
-        // 逻辑：Group 1 是年份 (String -> Int), Group 2 是月份 (String -> Int)
-
-        // 修改后
+        
         let pattern = "PersonalBill-([A-Za-z]+)\\.(\\d{4})"
-        // 逻辑：Group 1 是月份名称 (String, 如 "Jan"), Group 2 是年份 (String, 如 "2026")
         if let regex = try? NSRegularExpression(pattern: pattern),
            let match = regex.firstMatch(in: filename, range: NSRange(filename.startIndex..., in: filename)) {
             
-            // 注意：match.range(at: 1) 现在对应月份String，at: 2 对应年份String
             if let monthRange = Range(match.range(at: 1), in: filename),
                let yearRange = Range(match.range(at: 2), in: filename) {
                 
                 let monthStr = String(filename[monthRange])
                 let yearStr = String(filename[yearRange])
                 
-                // 解析年份
                 overrideYear = Int(yearStr)
                 
-                // 解析月份 (Jan -> 1)
-                // 使用 en_US_POSIX 确保即使手机是中文环境，也能正确解析英文月份缩写
                 let formatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
-                formatter.dateFormat = "MMM" // 匹配 "Jan", "Feb", "Mar" 等
+                formatter.dateFormat = "MMM"
                 
                 if let date = formatter.date(from: monthStr) {
                     overrideMonth = Calendar.current.component(.month, from: date)

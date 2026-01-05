@@ -5,7 +5,8 @@ import SwiftData
 struct iPurseLightApp: App {
     // 1. 初始化翻译官
     @StateObject private var localizationManager = LocalizationManager()
-
+    // ✅ 正确写法：引用已存在的单例
+    @StateObject private var quickActionManager = QuickActionManager.shared
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             BillItem.self,
@@ -25,6 +26,7 @@ struct iPurseLightApp: App {
             ContentView()
                 // 2. 把翻译官注入环境变量，让所有视图都能访问
                 .environmentObject(localizationManager)
+                .environmentObject(quickActionManager) // 注入环境
                 // 3. 关键：通过改变 ID 来强制刷新整个视图树，实现语言即时切换
                 .id(localizationManager.language)
         }
