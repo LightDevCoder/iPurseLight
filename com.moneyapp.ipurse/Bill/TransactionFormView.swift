@@ -8,7 +8,6 @@ struct TransactionFormView: View {
     
     var itemToEdit: BillItem?
     
-    // ✨【新增】接收外部传入的初始文本 (默认空字符串，兼容旧调用)
     var initialText: String = ""
     
     var onSave: (BillItem) -> Void
@@ -109,7 +108,6 @@ struct TransactionFormView: View {
                     note = item.note
                 }
                 
-                // ✨【新增】如果有传入的语音文本，自动填入
                 if !initialText.isEmpty {
                     aiInput = initialText
                 }

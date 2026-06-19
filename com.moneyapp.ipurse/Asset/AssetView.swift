@@ -95,7 +95,6 @@ struct AssetView: View {
                             Label(lm.t("新建资产 (如:招商银行)"), systemImage: "plus.square")
                         }
                         Button(action: { showCreatePortfolio = true }) {
-                            // ✨ 修改了这里：
                             Label(lm.t("新建汇总 (如: 汇总渠道)"), systemImage: "folder.badge.plus")
                         }
                     } label: { Image(systemName: "plus.circle.fill").font(.title2) }
@@ -158,8 +157,6 @@ struct AssetSummaryCard: View {
     }
 }
 
-// 仅修改 AssetRow 结构体，AssetView 的其他部分保持不变
-
 struct AssetRow: View {
     @EnvironmentObject var lm: LocalizationManager
     let asset: AssetItem
@@ -181,7 +178,6 @@ struct AssetRow: View {
                             .font(.caption)
                             .foregroundStyle(.orange)
                         
-                        // ✨✨✨ 修复部分：每日收益显示 ✨✨✨
                         Text("+¥\(String(format: "%.2f", asset.dailyIncome))/\(lm.t("天"))")
                             .font(.caption)
                             .foregroundStyle(.red)
@@ -221,7 +217,7 @@ struct AssetFormSheet: View {
     @State private var type = "银行存款"
     // 可选类型，默认 nil，解决 "0.00" 输入问题
     @State private var amount: Double?
-    @State private var producedIncome: Double? // 新增：已产出收益
+    @State private var producedIncome: Double?
     @State private var annualizedRate: Double?
     
     let commonTypes = ["银行存款", "现金", "公积金", "理财产品", "外币", "其他"]
@@ -248,7 +244,6 @@ struct AssetFormSheet: View {
                 }
                 
                 Section(header: Text(lm.t("收益设置 (可选)"))) {
-                    // 新增：已产出收益
                     HStack {
                         Text("已产出收益") // 可放入翻译字典 "Produced Income"
                         TextField("0", value: $producedIncome, format: .number)
@@ -317,8 +312,6 @@ struct AssetFormSheet: View {
     }
 }
 
-// CreatePortfolioSheet 和 AssetAIAnalysisView 保持不变...
-// (为保持代码完整性，请确保保留这两个结构体，或者如果需要我再次附上请告知)
 struct CreatePortfolioSheet: View {
     @Environment(\.modelContext) var context
     @Environment(\.dismiss) var dismiss

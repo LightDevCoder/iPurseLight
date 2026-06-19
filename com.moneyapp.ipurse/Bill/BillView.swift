@@ -2,13 +2,11 @@ import SwiftUI
 import SwiftData
 import Charts
 import UniformTypeIdentifiers
-import Combine // 👈 必须引入这个，ObservableObject 在这里定义
 
 struct BillView: View {
     @Environment(\.modelContext) var context
     @EnvironmentObject var lm: LocalizationManager
     
-    // ✨ 新增：获取 QuickActionManager
     @EnvironmentObject var quickActionManager: QuickActionManager
     
     @Query(sort: \BillItem.date, order: .reverse) var transactions: [BillItem]
@@ -24,7 +22,6 @@ struct BillView: View {
     @State private var selection = Set<UUID>()
     @State private var editingItem: BillItem?
     
-    // ✨ 新增：用于传递给 Form 的初始文本
     @State private var initialVoiceText: String = ""
     
     var availableYears: [Int] {
@@ -154,7 +151,6 @@ struct BillView: View {
             .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [UTType.commaSeparatedText]) { res in
                 if let url = try? res.get() { importCSV(from: url) }
             }
-            // ✨ 修改：记一笔 Sheet (带初始文本)
             .sheet(isPresented: $showAddTransaction) {
                 TransactionFormView(itemToEdit: nil, initialText: initialVoiceText) { newItem in
                     context.insert(newItem)
@@ -166,7 +162,6 @@ struct BillView: View {
                 TransactionFormView(itemToEdit: item) { _ in refreshSelection(date: item.date) }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
-            // ✨✨✨【新增核心修复】✨✨✨
             // 处理“冷启动”：App 刚打开时，如果状态已经是 true，onChange 无法监听到，必须这里手动查一次
             .task {
                 // 给一点点延迟，确保视图层级完全准备好
@@ -181,7 +176,6 @@ struct BillView: View {
                     quickActionManager.shouldShowAddTransaction = false
                 }
             }
-            // ✨ 新增：监听快捷指令触发
             .onChange(of: quickActionManager.shouldShowAddTransaction) { _, newValue in
                 if newValue {
                     if let text = quickActionManager.consumePendingText() {

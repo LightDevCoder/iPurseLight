@@ -24,7 +24,7 @@ class LocalizationManager: ObservableObject {
         return language == .zhHans ? key : (translations[key] ?? key)
     }
     
-    // MARK: - ✨ 新增：日期格式化专用函数
+    // MARK: - Date formatting
     
     // 1. 月份格式化: 1 -> "1月" (中) / "Jan." (英)
     func formatMonth(_ month: Int) -> String {
@@ -96,7 +96,7 @@ class LocalizationManager: ObservableObject {
         
         // --- BillView ---
         "账单流水": "Transactions",
-        "年度汇总": "Annual Report", // ✨ 改成了 Annual Report
+        "年度汇总": "Annual Report",
         "年份": "Year", // 选择器标题保留 Year
         // "年", "月" 的翻译在 format 函数里处理了，这里可以删掉或留着备用
         "月 无数据": " Month - No Data",

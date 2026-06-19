@@ -46,7 +46,7 @@ struct AnalysisView: View {
                             Text("¥\(String(format: "%.2f", totalIncome))").font(.title2).bold().foregroundStyle(.green)
                         }
                         .frame(maxWidth: .infinity).padding()
-                        .background(cardBackground) // ✅ 修复背景
+                        .background(cardBackground)
                         .cornerRadius(10)
                         
                         VStack {
@@ -54,7 +54,7 @@ struct AnalysisView: View {
                             Text("¥\(String(format: "%.2f", totalExpense))").font(.title2).bold().foregroundStyle(.red)
                         }
                         .frame(maxWidth: .infinity).padding()
-                        .background(cardBackground) // ✅ 修复背景
+                        .background(cardBackground)
                         .cornerRadius(10)
                     }
                     .padding(.horizontal)
@@ -85,7 +85,7 @@ struct AnalysisView: View {
                         }
                     }
                     .padding()
-                    .background(cardBackground) // ✅ 修复背景
+                    .background(cardBackground)
                     .cornerRadius(12).padding(.horizontal)
                     
                     // 3. 图表展示
@@ -165,7 +165,7 @@ struct ChartBlock: View {
             }
         }
         .padding(.vertical)
-        .background(cardBackground) // ✅ 修复背景
+        .background(cardBackground)
         .cornerRadius(12)
         .padding(.horizontal)
     }
